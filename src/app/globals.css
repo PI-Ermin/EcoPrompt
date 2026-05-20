@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #030914;
+  --foreground: #eef7ff;
 }
 
 @theme inline {
@@ -12,15 +12,253 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+body {
+  background:
+    radial-gradient(circle at 20% 10%, rgba(32, 227, 178, 0.18), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(58, 167, 255, 0.16), transparent 30%),
+    linear-gradient(180deg, #030914 0%, #071629 55%, #030914 100%);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.map-card {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgba(32, 227, 178, 0.13), transparent 34%),
+    rgba(255, 255, 255, 0.045);
+  background-size: 42px 42px, 42px 42px, auto, auto;
+}
+
+.live-dot {
+  animation: pulse-red 1.2s infinite;
+}
+
+@keyframes pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.65);
+  }
+  80% {
+    box-shadow: 0 0 0 13px rgba(255, 107, 107, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.brazil-real-map svg {
+  width: 92%;
+  height: 100%;
+  filter: drop-shadow(0 0 34px rgba(32, 227, 178, 0.24));
+}
+
+.brazil-real-map path,
+.brazil-real-map polygon {
+  fill: rgba(28, 103, 105, 0.82);
+  stroke: rgba(152, 255, 230, 0.54);
+  stroke-width: 1.2;
+  transition: 0.2s ease;
+}
+
+.city {
+  position: absolute;
+  z-index: 5;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+}
+
+.city::before {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #20e3b2;
+  box-shadow: 0 0 20px rgba(32, 227, 178, 0.95);
+  animation: city-pulse 1s infinite alternate;
+}
+
+.city::after {
+  content: attr(data-name);
+  position: absolute;
+  left: 50%;
+  top: -30px;
+  transform: translateX(-50%);
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(3, 9, 20, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+@keyframes city-pulse {
+  from {
+    transform: scale(0.8);
+    opacity: 0.65;
+  }
+  to {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+}
+
+.flash {
+  position: absolute;
+  z-index: 6;
+  left: var(--x);
+  top: var(--y);
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #ffd166;
+  pointer-events: none;
+  animation: flash 1.3s ease-out forwards;
+}
+
+.flash::before {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 209, 102, 0.72);
+  animation: ring 1.3s ease-out forwards;
+}
+
+.flash::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 18px;
+  top: -10px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: rgba(255, 209, 102, 0.14);
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  color: #ffe9a8;
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+@keyframes flash {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+}
+
+@keyframes ring {
+  from {
+    transform: scale(0.2);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.traffic-line {
+  stroke: rgba(32, 227, 178, 0.82);
+  stroke-width: 2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 8px rgba(32, 227, 178, 0.7));
+  animation: line-fade 1.5s ease-out forwards;
+}
+
+@keyframes line-fade {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.feed-item {
+  animation: feed-in 0.25s ease-out;
+}
+
+@keyframes feed-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+.brazil-map-outline {
+  fill: rgba(28, 103, 105, 0.88);
+  stroke: rgba(152, 255, 230, 0.72);
+  stroke-width: 2.4;
+}
+
+.brazil-map-divisions path {
+  stroke: rgba(152, 255, 230, 0.38);
+  stroke-width: 1.4;
+}
+
+.brazil-state-marker {
+  fill: #ffd166;
+  stroke: rgba(3, 9, 20, 0.9);
+  stroke-width: 2.5;
+  cursor: pointer;
+  outline: none;
+  transition: r 0.18s ease, fill 0.18s ease, filter 0.18s ease;
+}
+
+.brazil-state-marker:hover,
+.brazil-state-marker:focus,
+.brazil-state-marker[data-active="true"] {
+  fill: #20e3b2;
+  filter: drop-shadow(0 0 10px rgba(32, 227, 178, 0.9));
+}
+
+.brazil-state-code {
+  fill: rgba(238, 247, 255, 0.78);
+  font-size: 13px;
+  font-weight: 900;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: rgba(3, 9, 20, 0.95);
+  stroke-width: 3px;
+}
+
+.brazil-state-label {
+  fill: #eef7ff;
+  font-size: 24px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: rgba(3, 9, 20, 0.9);
+  stroke-width: 6px;
+}
+
+@media (max-width: 980px) {
+  .city::after {
+    display: none;
+  }
 }
