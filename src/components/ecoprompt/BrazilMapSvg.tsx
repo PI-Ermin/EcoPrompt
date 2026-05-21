@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import type { FlashEvent } from "@/data/ecoprompt";
 
 const svgConfig = {
   features: [
@@ -143,7 +143,9 @@ const svgConfig = {
 };
 
 
-export function BrazilMapSvg(props: React.SVGProps<SVGSVGElement>) {
+type Props = { flashes?: FlashEvent[] };
+
+export function BrazilMapSvg({ flashes = [] }: Props) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -175,7 +177,7 @@ export function BrazilMapSvg(props: React.SVGProps<SVGSVGElement>) {
         })}
 
       </g>
-      <g
+<g
         id="label_points"
         fill="#1f2937"
         stroke="#ffffff"
@@ -213,6 +215,32 @@ export function BrazilMapSvg(props: React.SVGProps<SVGSVGElement>) {
         <text id="BRDF" x="573.7" y="469.3">DF</text>
         <text id="BRMG" x="644.1" y="527">MG</text>
         <text id="BRTO" x="562.1" y="361.7">TO</text>
+      </g>
+
+      {/* flashes coloridos por modelo */}
+      <g id="city-flashes" pointerEvents="none">
+        {flashes.map((flash) => (
+          <g key={flash.id}>
+            {/* brilho difuso */}
+            <circle
+              className="state-flash-glow"
+              cx={flash.city.svgX}
+              cy={flash.city.svgY}
+              r={50}
+              fill={flash.modelColor}
+            />
+            {/* anel expansivo */}
+            <circle
+              className="state-flash-ring"
+              cx={flash.city.svgX}
+              cy={flash.city.svgY}
+              r={12}
+              fill="none"
+              stroke={flash.modelColor}
+              strokeWidth={2}
+            />
+          </g>
+        ))}
       </g>
     </svg>
   );
