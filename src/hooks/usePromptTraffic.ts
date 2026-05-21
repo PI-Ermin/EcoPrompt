@@ -46,14 +46,14 @@ function makeId(prefix: string) {
   return prefix + "-" + Date.now() + "-" + Math.random().toString(16).slice(2);
 }
 
-function buildFeedItem(city: City, tokens: number): FeedItem {
+function buildFeedItem(city: City, tokens: number, model: AiModel): FeedItem {
   const energy = tokens * ENERGY_PER_TOKEN;
 
   return {
     id: makeId("feed"),
     city,
     category: randomCategory(),
-    model: weightedModel(),
+    model,
     tokens,
     energy,
     water: energy * WATER_FACTOR,
@@ -72,12 +72,12 @@ export function usePromptTraffic() {
   const seenEventIds = useRef(new Set<string>());
 
   const pushTrafficEvent = useCallback(
-    (city: City, tokens: number, feedItem: FeedItem, eventId = makeId("event")) => {
+    (city: City, tokens: number, feedItem: FeedItem, modelColor: string, eventId = makeId("event")) => {
       const to = weightedCity();
       const flashId = "flash-" + eventId;
       const lineId = "line-" + eventId;
 
-      setFlashes((current) => [...current, { id: flashId, city, tokens }]);
+      setFlashes((current) => [...current, { id: flashId, city, tokens, modelColor }]);
 
       if (city.name !== to.name) {
         setLines((current) => [...current, { id: lineId, from: city, to }]);
@@ -102,9 +102,10 @@ export function usePromptTraffic() {
   const simulateRequest = useCallback(() => {
     const from = weightedCity();
     const tokens = Math.floor(200 + Math.random() * 2800);
-    const feedItem = buildFeedItem(from, tokens);
+    const model = weightedModel();
+    const feedItem = buildFeedItem(from, tokens, model);
 
-    pushTrafficEvent(from, tokens, feedItem);
+    pushTrafficEvent(from, tokens, feedItem, model.color);
   }, [pushTrafficEvent]);
 
   const applyPromptEvent = useCallback(
@@ -119,7 +120,7 @@ export function usePromptTraffic() {
         water: event.water,
       };
 
-      pushTrafficEvent(event.city, event.tokens, feedItem, event.id);
+      pushTrafficEvent(event.city, event.tokens, feedItem, event.model.color, event.id);
     },
     [pushTrafficEvent],
   );

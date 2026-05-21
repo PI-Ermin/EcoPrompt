@@ -9,6 +9,8 @@ export function Header() {
       <a
         className="inline-flex min-h-11 items-center justify-center rounded-full bg-gradient-to-br from-[#20e3b2] to-[#3aa7ff] px-4 text-sm font-extrabold text-[#03131f] shadow-[0_14px_40px_rgba(32,227,178,0.22)] md:px-5"
         href={extensionUrl}
+        target="_blank"
+        rel="noopener noreferrer"
       >
         Endpoint da API
       </a>
