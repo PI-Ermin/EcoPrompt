@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id           String         @id @default(uuid()) @db.Uuid
+  email        String         @unique
+  senhaHash    String         @map("senha_hash")
+  criadoEm     DateTime       @default(now()) @map("criado_em")
+  atualizadoEm DateTime       @updatedAt @map("atualizado_em")
+  requisicoes  RequisicaoIA[]
+
+  @@map("usuarios")
+}
+
+model ModeloIA {
+  id           Int            @id @default(autoincrement())
+  nome         String         @unique
+  provedor     String
+  cor          String
+  peso         Int            @default(1)
+  criadoEm     DateTime       @default(now()) @map("criado_em")
+  atualizadoEm DateTime       @updatedAt @map("atualizado_em")
+  requisicoes  RequisicaoIA[]
+
+  @@map("modelos_ia")
+}
+
+model RequisicaoIA {
+  id           Int      @id @default(autoincrement())
+  usuarioId    String   @map("usuario_id") @db.Uuid
+  localizacao  String?
+  totalTokens  Int      @default(0) @map("total_tokens")
+  modeloIaId   Int      @map("modelo_ia_id")
+  aguaGasto    Decimal  @default(0) @map("agua_gasto") @db.Decimal(10, 4)
+  energiaGasto Decimal  @default(0) @map("energia_gasto") @db.Decimal(10, 4)
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  usuario  Usuario  @relation(fields: [usuarioId], references: [id])
+  modelo   ModeloIA @relation(fields: [modeloIaId], references: [id])
+
+  @@index([usuarioId])
+  @@index([modeloIaId])
+  @@map("requisicoes_ia")
+}

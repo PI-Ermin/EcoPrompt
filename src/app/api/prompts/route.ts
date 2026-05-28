@@ -28,7 +28,7 @@ export async function GET() {
   });
 }
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<Response> {
   let body: unknown;
 
   try {
@@ -41,7 +41,8 @@ export async function POST(request: Request) {
     return Response.json({ error: "Payload invalido" }, { status: 400 });
   }
 
-  const event = createPromptEvent(body);
+  const userId = request.headers.get("x-user-id") ?? undefined;
+  const event = await createPromptEvent(body, userId);
 
   return Response.json({ event }, { status: 201 });
 }
