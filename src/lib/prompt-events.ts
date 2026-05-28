@@ -6,6 +6,7 @@ import {
   WATER_FACTOR,
 } from "@/data/ecoprompt";
 import type { AiModel, City } from "@/data/ecoprompt";
+import { prisma } from "@/lib/prisma";
 
 export type PromptEvent = {
   id: string;
@@ -76,7 +77,10 @@ function findCategory(input: PromptEventInput) {
   );
 }
 
-export function createPromptEvent(input: PromptEventInput) {
+export async function createPromptEvent(
+  input: PromptEventInput,
+  userId?: string,
+): Promise<PromptEvent> {
   const tokens = Math.min(Math.max(Math.round(input.tokens ?? 600), 1), 100000);
   const energy = tokens * ENERGY_PER_TOKEN;
 
@@ -95,7 +99,32 @@ export function createPromptEvent(input: PromptEventInput) {
   events.unshift(event);
   events.splice(MAX_EVENTS);
 
+  if (userId) {
+    persistToDb(event, userId).catch((err) =>
+      console.error("[EcoPrompt] Falha ao persistir no banco:", err),
+    );
+  }
+
   return event;
+}
+
+async function persistToDb(event: PromptEvent, userId: string): Promise<void> {
+  const modelo = await prisma.modeloIA.findFirst({
+    where: { nome: event.model.name },
+  });
+
+  if (!modelo) return;
+
+  await prisma.requisicaoIA.create({
+    data: {
+      usuarioId: userId,
+      localizacao: `${event.city.name}/${event.city.state}`,
+      totalTokens: event.tokens,
+      modeloIaId: modelo.id,
+      aguaGasto: event.water,
+      energiaGasto: event.energy,
+    },
+  });
 }
 
 export function listPromptEvents() {
